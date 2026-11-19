@@ -1,0 +1,36 @@
+name: CI - Backend & Frontend Checks
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test-backend:
+    name: Ejecutar Tests del Servidor (Node/Express)
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./server
+
+    steps:
+      - name: Descargar código del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: './server/package-lock.json'
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Ejecutar suite de pruebas (Jest + Supertest)
+        run: npm test
+        env:
+          NODE_ENV: test
+          JWT_SECRET: mqPbIPWMG4PBIB7PhUIFFu1SKu/KhYim8nGp1hlCFEU=
