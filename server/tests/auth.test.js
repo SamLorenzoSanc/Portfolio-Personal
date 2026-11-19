@@ -1,29 +1,30 @@
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env.test') });
 const request = require('supertest');
 const mongoose = require('mongoose');
-const { MongoMemoryServer } = require('mongodb-memory-server');
 const app = require('../src/app');
 const User = require('../src/models/User');
 
-let mongoServer;
-
-// Definimos un secreto de prueba para no depender del archivo .env en CI
-process.env.JWT_SECRET = 'mqPbIPWMG4PBIB7PhUIFFu1SKu/KhYim8nGp1hlCFEU=';
-
 beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create();
-  await mongoose.connect(mongoServer.getUri());
+  console.log("La uri de test es: ", process.env.MONGO_URI);
+  await mongoose.connect(process.env.MONGO_URI, {
+    driverInfo: { name: 'MongooseTest', version: '1.0.0' }
+  });
 
-  // Creamos un usuario administrador de prueba en memoria
+  // Asegura que la colección esté vacía antes de empezar
+  await User.deleteMany({});
+
   await User.create({
     name: 'Admin Test',
     email: 'admin@test.com',
-    password: 'Password123'
+    password: 'Password123!'
   });
 });
 
 afterAll(async () => {
+  // Limpia los datos de prueba al terminar
+  await User.deleteMany({});
   await mongoose.disconnect();
-  await mongoServer.stop();
 });
 
 describe('API Health & Autenticación JWT', () => {
