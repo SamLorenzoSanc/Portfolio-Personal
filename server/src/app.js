@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
-
+const authRoutes = require('./routes/authRoutes');
 const app = express();
 
 // Middlewares globales
@@ -23,6 +23,9 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
+
+// Ruta de la API (Rutas)
+app.use('/api/auth', authRoutes);
 
 // Manejo de rutas no encontradas (404)
 app.use((req, res) => {
